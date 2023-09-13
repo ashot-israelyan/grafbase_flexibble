@@ -1,33 +1,33 @@
 export const createProjectMutation = `
-  mutation CreateProject($input: ProjectCreateInput!) {
-    projectCreate(input: $input) {
-      project {
-        id
-        title
-        description
-        createdBy {
-          email
-          name
-        }
-      }
-    }
-  }
+	mutation CreateProject($input: ProjectCreateInput!) {
+		projectCreate(input: $input) {
+			project {
+				id
+				title
+				description
+				createdBy {
+					email
+					name
+				}
+			}
+		}
+	}
 `;
 
 export const updateProjectMutation = `
-  mutation UpdateProject($id: ID!, $input: ProjectUpdateInput!) {
-    projectUpdate(by: { id: $id }, input: $input) {
-      project {
-        id
-        title
-        description
-        createdBy {
-          email
-          name
-        }
-      }
-    }
-  }
+	mutation UpdateProject($id: ID!, $input: ProjectUpdateInput!) {
+		projectUpdate(by: { id: $id }, input: $input) {
+			project {
+				id
+				title
+				description
+				createdBy {
+					email
+					name
+				}
+			}
+		}
+	}
 `;
 
 export const deleteProjectMutation = `
@@ -38,39 +38,56 @@ export const deleteProjectMutation = `
   }
 `;
 
-export const getUserQuery = `
-  query GetUser($email: String!) {
-    user(by: { email: $email }) {
-      id
-      name
-      email
-      avatarUrl
-      description
-      githubUrl
-      linkedinUrl
-    }
-}
+export const createUserMutation = `
+	mutation CreateUser($input: UserCreateInput!) {
+		userCreate(input: $input) {
+			user {
+				name
+				email
+				avatarUrl
+				description
+				githubUrl
+				linkedinUrl
+				id
+			}
+		}
+	}
 `;
 
-export const createUserMutation = `
-  mutation CreateUser($input: UserCreateInput!) {
-    userCreate(input: $input) {
-      user {
-        id
-        name
-        email
-        avatarUrl
-        description
-        githubUrl
-        linkedinUrl
+export const getAllProjectsQuery = `
+  query ProjectCollection {
+    projectCollection(first: 10) {
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      edges {
+        node {
+          description
+          image
+          title
+          liveSiteUrl
+          githubUrl
+          category
+          createdBy {
+            id
+            email
+            name
+            avatarUrl
+          }
+          id
+        }
+        cursor
       }
     }
   }
 `;
 
 export const projectsQuery = `
-  query getProjects() {
-    projectSearch(first: 8) {
+  query getProjects($category: String, $endcursor: String) {
+    projectSearch(first: 1, after: $endcursor, filter: {category: {eq: $category}}) {
       pageInfo {
         hasNextPage
         hasPreviousPage
@@ -114,6 +131,20 @@ export const getProjectByIdQuery = `
         email
         avatarUrl
       }
+    }
+  }
+`;
+
+export const getUserQuery = `
+  query GetUser($email: String!) {
+    user(by: { email: $email }) {
+      id
+      name
+      email
+      avatarUrl
+      description
+      githubUrl
+      linkedinUrl
     }
   }
 `;

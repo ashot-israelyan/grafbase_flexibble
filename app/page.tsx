@@ -1,6 +1,8 @@
-import { fetchAllProjects } from '@/lib/actions';
-import { ProjectInterface } from '@/common.types';
-import ProjectCard from '@/components/ProjectCard';
+import { ProjectInterface } from "@/common.types";
+import Categories from "@/components/Categories";
+import LoadMore from "@/components/LoadMore";
+import ProjectCard from "@/components/ProjectCard";
+import { fetchAllProjects } from "@/lib/actions";
 
 type SearchParams = {
   category?: string | null;
@@ -11,27 +13,34 @@ type Props = {
   searchParams: SearchParams
 }
 
-type ProjectSearch = {
-  projectSearch: {
-    edges: { node: ProjectInterface }[];
-    pageInfo: {
-      hasPreviousPage: boolean;
-      hasNextPage: boolean;
-      startCursor: string;
-      endCursor: string;
-    }
-  }
+type ProjectInfo = {
+  edges: { node: ProjectInterface }[];
+  pageInfo: {
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+    startCursor: string;
+    endCursor: string;
+  };
 }
 
-const Home = async ({ searchParams: { category, endcursor } } : Props) => {
-  const data = await fetchAllProjects(category, endcursor) as ProjectSearch;
+type ProjectSearch = {
+  projectSearch?: ProjectInfo,
+  projectCollection: ProjectInfo
+}
 
-  const projectsToDisplay = data?.projectSearch?.edges || [];
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 0;
+
+const Home = async ({ searchParams: { category, endcursor } }: Props) => {
+  const data = await fetchAllProjects(category, endcursor) as ProjectSearch
+
+  const projectsToDisplay = data?.projectSearch?.edges || data?.projectCollection?.edges || [];
 
   if (projectsToDisplay.length === 0) {
     return (
       <section className="flexStart flex-col paddings">
-        Categories
+        <Categories />
 
         <p className="no-result-text text-center">No projects found, go create some first.</p>
       </section>
@@ -39,8 +48,8 @@ const Home = async ({ searchParams: { category, endcursor } } : Props) => {
   }
 
   return (
-    <section className="flex-start flex-col paddings mb-16">
-      <h1>Categories</h1>
+    <section className="flexStart flex-col paddings mb-16">
+      <Categories />
 
       <section className="projects-grid">
         {projectsToDisplay.map(({ node }: { node: ProjectInterface }) => (
@@ -56,10 +65,14 @@ const Home = async ({ searchParams: { category, endcursor } } : Props) => {
         ))}
       </section>
 
-      <h1>Posts</h1>
-      <h1>LoadMore</h1>
+      <LoadMore
+        startCursor={data?.projectSearch?.pageInfo?.startCursor || data?.projectCollection?.pageInfo?.startCursor}
+        endCursor={data?.projectSearch?.pageInfo?.endCursor || data?.projectCollection?.pageInfo?.endCursor}
+        hasPreviousPage={data?.projectSearch?.pageInfo?.hasPreviousPage || data?.projectCollection?.pageInfo?.hasPreviousPage}
+        hasNextPage={data?.projectSearch?.pageInfo.hasNextPage || data?.projectCollection?.pageInfo?.hasNextPage}
+      />
     </section>
-  );
+  )
 };
 
 export default Home;
